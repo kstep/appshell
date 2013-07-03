@@ -68,8 +68,14 @@ public class AppEntry {
         }
     }
 
-    public void runApp() {
-        mLoader.getContext().startActivity(mLoader.mPm.getLaunchIntentForPackage(mInfo.packageName));
+    public boolean runApp() {
+        Intent intent = mLoader.mPm.getLaunchIntentForPackage(mInfo.packageName);
+        if (intent != null) {
+            mLoader.getContext().startActivity(intent);
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
