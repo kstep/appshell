@@ -2,6 +2,7 @@ package me.kstep.appshell;
 
 import android.content.pm.ApplicationInfo;
 import android.graphics.drawable.Drawable;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -71,7 +72,11 @@ public class AppEntry {
     public boolean runApp() {
         Intent intent = mLoader.mPm.getLaunchIntentForPackage(mInfo.packageName);
         if (intent != null) {
-            mLoader.getContext().startActivity(intent);
+            try {
+                mLoader.getContext().startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                return false;
+            }
             return true;
         } else {
             return false;

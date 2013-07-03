@@ -37,7 +37,7 @@ public class AppListView extends ListView implements LoaderManager.LoaderCallbac
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         AppEntry entry = (AppEntry) getAdapter().getItem(position);
         if (!entry.runApp()) {
-            Toast toast = Toast.makeText(getContext(), "The app “" + entry.getLabel() + "” has no launcher", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(getContext(), "Failed to start “" + entry.getLabel() + "”", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.TOP, 0, 0);
             toast.show();
         }
