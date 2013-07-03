@@ -28,16 +28,27 @@ public class MainActivity extends Activity implements SearchView.OnQueryTextList
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        if (mSearchView != null) {
+            mSearchView.setIconified(false);
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuItem item = menu.add("Search");
         item.setIcon(android.R.drawable.ic_menu_search);
-        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM|MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
         mSearchView = new SearchView(this);
         mSearchView.setOnQueryTextListener(this);
         mSearchView.setOnCloseListener(this);
         mSearchView.setIconifiedByDefault(true);
+
         item.setActionView(mSearchView);
+        mSearchView.setIconified(false);
 
         return true;
     }
