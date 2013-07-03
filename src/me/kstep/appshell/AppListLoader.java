@@ -1,17 +1,65 @@
 package me.kstep.appshell;
 
 import android.content.AsyncTaskLoader;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import java.util.ArrayList;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
+
+    public class AppBroadcastReceiver extends BroadcastReceiver {
+        public AppBroadcastReceiver() {
+            AppListLoader loader = AppListLoader.this;
+
+            IntentFilter filter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
+            filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+            filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+            filter.addDataScheme("package");
+            loader.getContext().registerReceiver(this, filter);
+
+            // Register for events related to sdcard installation.
+            IntentFilter sdFilter = new IntentFilter();
+            sdFilter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_AVAILABLE);
+            sdFilter.addAction(Intent.ACTION_EXTERNAL_APPLICATIONS_UNAVAILABLE);
+            loader.getContext().registerReceiver(this, sdFilter);
+        }
+
+        @Override public void onReceive(Context context, Intent intent) {
+            // Tell the loader about the change.
+            AppListLoader.this.onContentChanged();
+        }
+    }
+
+    public static class InterestingConfigChanges {
+        final Configuration mLastConfiguration = new Configuration();
+        int mLastDensity;
+
+        boolean applyNewConfig(Resources res) {
+            int configChanges = mLastConfiguration.updateFrom(res.getConfiguration());
+            boolean densityChanged = mLastDensity != res.getDisplayMetrics().densityDpi;
+            if (densityChanged || (configChanges&(ActivityInfo.CONFIG_LOCALE
+                            | ActivityInfo.CONFIG_UI_MODE | ActivityInfo.CONFIG_SCREEN_LAYOUT)) != 0) {
+                mLastDensity = res.getDisplayMetrics().densityDpi;
+                return true;
+                            }
+            return false;
+        }
+    }
+
     final PackageManager mPm;
+    final InterestingConfigChanges mLastConfig = new InterestingConfigChanges();
+    AppBroadcastReceiver mAppsObserver;
     List<AppEntry> mApps;
 
     public AppListLoader(Context context) {
@@ -90,7 +138,13 @@ class AppListLoader extends AsyncTaskLoader<List<AppEntry>> {
             deliverResult(mApps);
         }
 
-        if (takeContentChanged() || mApps == null) {
+        if (mAppsObserver == null) {
+            mAppsObserver = this.new AppBroadcastReceiver();
+        }
+
+        boolean configChanged = mLastConfig.applyNewConfig(getContext().getResources());
+
+        if (configChanged || mApps == null || takeContentChanged()) {
             forceLoad();
         }
     }
