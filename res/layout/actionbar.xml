@@ -5,7 +5,7 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     >
-    <EditText android:id="@+id/search_text" android:layout_width="0dp" android:layout_weight="1" android:layout_height="fill_parent" />
+    <EditText android:id="@+id/search_text" android:layout_width="0dp" android:layout_weight="1" android:layout_height="fill_parent" android:background="@null" android:singleLine="true" />
     <Button android:onClick="onSearchButtonClick" android:layout_width="48dp" android:layout_height="48dp"
         android:background="@drawable/ic_btn_search" />
 </LinearLayout>
