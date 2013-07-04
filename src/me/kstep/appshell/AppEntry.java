@@ -1,11 +1,13 @@
 package me.kstep.appshell;
 
-import android.content.pm.ApplicationInfo;
-import android.graphics.drawable.Drawable;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.provider.Settings;
 import java.io.File;
 
 public class AppEntry {
@@ -81,6 +83,13 @@ public class AppEntry {
         } else {
             return false;
         }
+    }
+
+    public void showAppDetails() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.setData(Uri.fromParts("package", mInfo.packageName, null));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mLoader.getContext().startActivity(intent);
     }
 }
 
